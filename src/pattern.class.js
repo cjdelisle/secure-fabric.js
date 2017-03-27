@@ -53,7 +53,13 @@
       }
       // function string
       if (typeof fabric.util.getFunctionBody(options.source) !== 'undefined') {
-        this.source = new Function(fabric.util.getFunctionBody(options.source));
+        if (typeof(options.source) === 'string') {
+            // The user passed a string as the options.source value so they don't care about CSP.
+            this.source = new Function(fabric.util.getFunctionBody(options.source));
+        } else {
+            var optionsSource = options.source;
+            this.source = function () { optionsSource.call(this); };
+        }
         callback && callback(this);
       }
       else {

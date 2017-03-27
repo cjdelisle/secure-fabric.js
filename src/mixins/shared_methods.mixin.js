@@ -48,9 +48,12 @@ fabric.CommonMethods = {
       return;
     }
 
-    var functionBody = fabric.util.getFunctionBody(options.clipTo);
-    if (typeof functionBody !== 'undefined') {
-      this.clipTo = new Function('ctx', functionBody);
+    var clipTo = options.clipTo || function () { };
+    if (typeof clipTo === 'string' && fabric.util.getFunctionBody(clipTo)) {
+      // The user is passing a string with function content, so they don't care about CSP
+      this.clipTo = new Function('ctx', fabric.util.getFunctionBody(clipTo));
+    } else if (typeof clipTo !== 'undefined') {
+      this.clipTo = function (ctx) { return clipTo.call(this, ctx); };
     }
   },
 
