@@ -1,10 +1,10 @@
 {
-  "name": "fabric.js",
+  "name": "secure-fabric.js",
   "homepage": "http://fabricjs.com",
   "authors": [
-    "kangax", "Kienz", "asturur"
+    "kangax", "Kienz", "asturur", "Caleb James DeLisle"
   ],
-  "description": "Object model for HTML5 canvas, and SVG-to-canvas parser. Backed by jsdom and node-canvas.",
+  "description": "Object model for HTML5 canvas, and SVG-to-canvas parser. Backed by jsdom and node-canvas. CSP Compatible",
   "main": "./dist/fabric.min.js",
   "ignore": [
     "lib",
@@ -25,7 +25,9 @@
     "node-canvas",
     "parser",
     "HTML5",
-    "object model"
+    "object model",
+    "CSP",
+    "security"
   ],
   "license": "MIT"
 }
