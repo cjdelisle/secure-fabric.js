@@ -201,9 +201,13 @@ fabric.CommonMethods = {
         if (!options.clipTo || typeof options.clipTo !== "string") {
             return;
         }
-        var functionBody = fabric.util.getFunctionBody(options.clipTo);
-        if (typeof functionBody !== "undefined") {
-            this.clipTo = new Function("ctx", functionBody);
+        var clipTo = options.clipTo || function() {};
+        if (typeof clipTo === "string" && fabric.util.getFunctionBody(clipTo)) {
+            this.clipTo = new Function("ctx", fabric.util.getFunctionBody(clipTo));
+        } else if (typeof clipTo !== "undefined") {
+            this.clipTo = function(ctx) {
+                return clipTo.call(this, ctx);
+            };
         }
     },
     _setObject: function(obj) {
@@ -463,12 +467,16 @@ fabric.CommonMethods = {
                 getterName = "get" + capitalizedPropName;
                 if (!proto[getterName]) {
                     proto[getterName] = function(property) {
-                        return new Function('return this.get("' + property + '")');
+                        return function() {
+                            return this.get(property);
+                        };
                     }(propName);
                 }
                 if (!proto[setterName]) {
                     proto[setterName] = function(property) {
-                        return new Function("value", 'return this.set("' + property + '", value)');
+                        return function(value) {
+                            return this.set(property, value);
+                        };
                     }(propName);
                 }
             }
@@ -3076,7 +3084,14 @@ fabric.ElementsParser.prototype.checkIfDone = function() {
                 return;
             }
             if (typeof fabric.util.getFunctionBody(options.source) !== "undefined") {
-                this.source = new Function(fabric.util.getFunctionBody(options.source));
+                if (typeof options.source === "string") {
+                    this.source = new Function(fabric.util.getFunctionBody(options.source));
+                } else {
+                    var optionsSource = options.source;
+                    this.source = function() {
+                        optionsSource.call(this);
+                    };
+                }
                 callback && callback(this);
             } else {
                 var _this = this;

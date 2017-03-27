@@ -414,9 +414,12 @@ fabric.CommonMethods = {
       return;
     }
 
-    var functionBody = fabric.util.getFunctionBody(options.clipTo);
-    if (typeof functionBody !== 'undefined') {
-      this.clipTo = new Function('ctx', functionBody);
+    var clipTo = options.clipTo || function () { };
+    if (typeof clipTo === 'string' && fabric.util.getFunctionBody(clipTo)) {
+      // The user is passing a string with function content, so they don't care about CSP
+      this.clipTo = new Function('ctx', fabric.util.getFunctionBody(clipTo));
+    } else if (typeof clipTo !== 'undefined') {
+      this.clipTo = function (ctx) { return clipTo.call(this, ctx); };
     }
   },
 
@@ -987,12 +990,12 @@ fabric.CommonMethods = {
         // using `new Function` for better introspection
         if (!proto[getterName]) {
           proto[getterName] = (function(property) {
-            return new Function('return this.get("' + property + '")');
+            return function () { return this.get(property); };
           })(propName);
         }
         if (!proto[setterName]) {
           proto[setterName] = (function(property) {
-            return new Function('value', 'return this.set("' + property + '", value)');
+            return function (value) { return this.set(property, value); };
           })(propName);
         }
       }
@@ -5793,7 +5796,13 @@ fabric.ElementsParser.prototype.checkIfDone = function() {
       }
       // function string
       if (typeof fabric.util.getFunctionBody(options.source) !== 'undefined') {
-        this.source = new Function(fabric.util.getFunctionBody(options.source));
+        if (typeof(options.source) === 'string') {
+            // The user passed a string as the options.source value so they don't care about CSP.
+            this.source = new Function(fabric.util.getFunctionBody(options.source));
+        } else {
+            var optionsSource = options.source;
+            this.source = function () { optionsSource.call(this); };
+        }
         callback && callback(this);
       }
       else {
