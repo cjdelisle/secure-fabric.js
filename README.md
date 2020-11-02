@@ -1,5 +1,7 @@
 ### Fabric
 
+Status: unmaintained, open an issue if you would like to take over, hopefully the relevant security change was upstreamed (?)
+
 <!-- chat, support -->
 
 [![Gitter](https://badges.gitter.im/JoinChat.svg)](https://gitter.im/kangax/fabric.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
